@@ -168,3 +168,201 @@
  * Work on deletiing AD on page and reflecting on DB. This should bring a Pop-UP to confirm deletion (confrim is enough)
  * */ 
 
+
+
+
+//  FOR CARS
+/*
+	<div class="row">
+          <div class="col-md-8 mb-2">
+            <div class="form-group">
+              <label for="file">Add Photo</label>
+              <input type="file" id="file" accept="image/*" multiple="multiple" class="form-control form-control-lg form-control-a">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="location">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="brand">Car Brand</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="brand" placeholder="Eg Toyota, Lexus etc">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="car-model">Car Model</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="car-model" placeholder="eg Venza, Sienna, Corolla Etc">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="year">Year</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="year">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="condition">Condition</label>
+              <select class="form-control form-control-lg form-control-a" id="condition">
+                <option>Brand New</option>
+                <option>Nigerian Used</option>
+                <option>Foreign Used</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="transmission">Transmission</label>
+              <select class="form-control form-control-lg form-control-a" id="transmission">
+                <option>Automatic</option>
+                <option>Manual</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="registered">Registered?</label>
+              <select class="form-control form-control-lg form-control-a" id="registered">
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="mileage">Mileage</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="mileage" placeholder="Mileage (km)">
+           
+              <div class="form-group mt-3">
+                <label for="price">Price</label>
+                <input type="number" class="form-control form-control-lg form-control-a" id="price">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8 mb-2">
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control form-control-lg form-control-a" placeholder="Add more description to your Ad" id="description" cols="30" rows="30" style="height: 10rem;"></textarea>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <button type="submit" class="btn btn-b">Upload</button>
+          </div>
+    </div>
+*/ 
+
+
+// FOR HOUSE/HOME
+/*
+ <div class="row">
+          <div class="col-md-8 mb-2">
+            <div class="form-group">
+              <label for="file">Add Photo</label>
+              <input type="file" id="file" accept="image/*" multiple="multiple"
+                class="form-control form-control-lg form-control-a">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="location">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="title">Title</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="title"
+                placeholder="Title or name of the Property">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="area">Property Size (sqm)</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="area">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="bedrooms">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="bathrooms">Bathrooms</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="bathrooms">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="sale-status">For Sale Or rent?</label>
+              <select class="form-control form-control-lg form-control-a" id="sale-status">
+                <option>For Sale</option>
+                <option>For Rent</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="row">
+
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="garage">Garage</label>
+                  <input type="number" class="form-control form-control-lg form-control-a" id="garage">
+                </div>
+              </div>
+
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="price">Price</label>
+                  <input type="number" class="form-control form-control-lg form-control-a" id="price">
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-md-8 mb-2">
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control form-control-lg form-control-a" placeholder="Add more description to your Ad"
+                id="description" cols="30" rows="30" style="height: 10rem;"></textarea>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="amenities">Other Amenities</label>
+              <select class="form-control form-control-lg form-control-a" id="amenities" multiple style="height: 10rem;">
+                <option>Parking Space</option>
+                <option>24 Hours Electricity</option>
+                <option>Internet</option>
+                <option>Air Conditioning</option>
+                <option>Security</option>
+                <option>Balcony</option>
+                <option>Tile Floor</option>
+                <option>Dish Washer</option>
+                <option>Dining Area</option>
+                <option>Kitchen Cabinet</option>
+                <option>Kitchen Shelf</option>
+                <option>Wardrobe</option>
+                <option>WIFI</option>
+                <option>POP Ceiling</option>
+                <option>Prepaid Meter</option>
+                <option>Concrete Flooring</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <button type="submit" class="btn btn-b">Upload</button>
+        </div>
+*/ 
+
+
+// FOR LAND
+/*
+
+*/ 
