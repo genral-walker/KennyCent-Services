@@ -154,3 +154,17 @@
 	)
 })(jQuery);
 
+/**
+ * Make all the image folder become one
+ * Delete unnecessary images
+ * Work on maing the email work
+ * Prevent the user from accesing the admin page if it isn't me or kenny.
+ * work on authenticating only me and Mr Kenny
+ * Uploading files should have an admin page which authenticates me and Kenny.
+ * We Two should be the only ones capable of uoloading and deleting from the SITE.
+ * Work on uploading files on the page and reflecting on db
+ ***** When uploading and user leaves without finishing upload, they shuolf be preomted first of they wish to discard the whole work.
+
+ * Work on deletiing AD on page and reflecting on DB. This should bring a Pop-UP to confirm deletion (confrim is enough)
+ * */ 
+
