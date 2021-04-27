@@ -158,7 +158,7 @@
 
 
   ///////////////////////
-  /*--/ Project Logic Code /--*/
+  /*--/ Project Logic /--*/
   //////////////////////
 
   const projectData = {
@@ -431,6 +431,7 @@
   };
 
   /*--/ Admin Page Code /--*/
+
 
   $('#upload').change(e => {
     switch (e.target.value) {

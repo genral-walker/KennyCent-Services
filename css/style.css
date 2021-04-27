@@ -875,6 +875,11 @@ a:hover {
   padding-left: 0;
 }
 
+
+.property-single img {
+  max-height: 40rem
+}
+
 /*======================================
 //--//-->   CARD GENERAL
 ======================================*/
