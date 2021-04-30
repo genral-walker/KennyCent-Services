@@ -1,7 +1,19 @@
 
-
 (function ($) {
   "use strict";
+
+  let firebaseConfig = {
+    apiKey: "AIzaSyBvXqlg1d4aBBNK4oRT8JS9aQYb6rZMLLM",
+    authDomain: "kennycent-services.firebaseapp.com",
+    projectId: "kennycent-services",
+    storageBucket: "kennycent-services.appspot.com",
+    messagingSenderId: "849694025919",
+    appId: "1:849694025919:web:553caab7d7e3c611cb7e0a"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  // Initialize Firestore and Auth
+  const firestore = firebase.firestore(), auth = firebase.auth(), storage = firebase.storage();
 
   // Preloader
   $(window).on('load', function () {
@@ -11,6 +23,7 @@
       });
     }
   });
+
 
   // Back to top button
   $(window).scroll(function () {
@@ -163,11 +176,12 @@
 
   const projectData = {
     uploadCategories: {
-      carForm: `<div class="row">
+      carForm: ` <div class="row">
       <div class="col-md-8 mb-2">
         <div class="form-group">
           <label for="file">Add Photo</label>
-          <input type="file" id="file" accept="image/*" multiple="multiple" class="form-control form-control-lg form-control-a">
+          <input type="file" id="file" accept="image/*" multiple="multiple"
+            class="form-control form-control-lg form-control-a">
         </div>
       </div>
       <div class="col-md-4 mb-2">
@@ -179,13 +193,15 @@
       <div class="col-md-4 mb-2">
         <div class="form-group">
           <label for="brand">Car Brand</label>
-          <input type="text" class="form-control form-control-lg form-control-a" id="brand" placeholder="Eg Toyota, Lexus etc">
+          <input type="text" class="form-control form-control-lg form-control-a" id="brand"
+            placeholder="Eg Toyota, Lexus etc">
         </div>
       </div>
       <div class="col-md-4 mb-2">
         <div class="form-group">
           <label for="car-model">Car Model</label>
-          <input type="text" class="form-control form-control-lg form-control-a" id="car-model" placeholder="eg Venza, Sienna, Corolla Etc">
+          <input type="text" class="form-control form-control-lg form-control-a" id="car-model"
+            placeholder="eg Venza, Sienna, Corolla Etc">
         </div>
       </div>
       <div class="col-md-4 mb-2">
@@ -225,7 +241,8 @@
       <div class="col-md-4 mb-2">
         <div class="form-group">
           <label for="mileage">Mileage</label>
-          <input type="number" class="form-control form-control-lg form-control-a" id="mileage" placeholder="Mileage (km)">
+          <input type="number" class="form-control form-control-lg form-control-a" id="mileage"
+            placeholder="Mileage (km)">
 
           <div class="form-group mt-3">
             <label for="price">Price</label>
@@ -236,13 +253,15 @@
       <div class="col-md-8 mb-2">
         <div class="form-group">
           <label for="description">Description</label>
-          <textarea class="form-control form-control-lg form-control-a" placeholder="Add more description to your Ad" id="description" cols="30" rows="30" style="height: 10rem;"></textarea>
+          <textarea class="form-control form-control-lg form-control-a"
+            placeholder="Add more description to your Ad" id="description" cols="30" rows="30"
+            style="height: 10rem;"></textarea>
         </div>
       </div>
       <div class="col-md-12">
         <button type="submit" class="btn btn-b">Upload</button>
       </div>
-                </div>`,
+    </div>`,
       houseForm: `<div class="row">
       <div class="col-md-8 mb-2">
         <div class="form-group">
@@ -428,19 +447,53 @@
       <button type="submit" class="btn btn-b">Upload</button>
                  </div>`
     },
+
+    fromInputs: {
+      get Name() {
+        if ($('#title')) {
+          return $('#title').val();
+        } else {
+          const name = $('#brand').val() + ' ' + $('#car-model').val();
+          return name;
+        }
+      },
+      Location: $('#location'),
+      Description: $('#description'),
+      Status: $('#sale-status'),
+      Price: $('#price'),
+      Bedrooms: $('#bedrooms'),
+      Bathrooms: $('#bathrooms'),
+      Garage: $('#garage'),
+      Area: $('#area'),
+      Amenities: $('#amenities'),
+      'Type Of Land': $('#land-type'),
+      Year: $('#year'),
+      Condition: $('#condition'),
+      Transmission: $('#transmission'),
+      Registered: $('#registered'),
+      Mileage: $('#mileage'),
+    },
+
+    formImages: {
+      dataReferenceId: 'dataid',
+      images: []
+    },
+
+    dataToSubmit : ''
   };
 
   /*--/ Admin Page Code /--*/
 
-
+  // Check what typemof data user wants to upload and display from related to that
   $('#upload').change(e => {
+
     switch (e.target.value) {
-      case 'House/Home':
+      case 'houses':
         $('.upload-type').text('Uploading A House');
         $('.form-upload').html(projectData.uploadCategories.houseForm);
         break;
 
-      case 'Land Properties':
+      case 'land':
         $('.upload-type').text('Uploading A Land');
         $('.form-upload').html(projectData.uploadCategories.landForm);
         break;
@@ -452,12 +505,84 @@
     }
   });
 
+
+  // GET ALL UPLOAD FORM DATA INPUTED
+  $('.form-upload').submit(function (event) {
+    event.preventDefault();
+
+    // Check what category user wants to upload
+    const uploadCategory = $('#upload').val();
+
+    // GET ALL THE DATA FOR A FORM SESSION UPLOAD
+    const data = Object.entries(projectData.fromInputs).map(([key, value]) => [key, value && value.val()]);
+
+    // FILTER THE DATA TO RETURN ON THOSE WITH VALUES 
+     const filteredData = Object.fromEntries(
+      data.filter(([key, value]) => value
+    ));
+
+    console.log(filteredData);
+    // projectData.dataToSubmit = filteredData;
+
+  });
+
+  /* firestore.collection('walke').get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+    });
+});; */
+
+
+  const ads = {
+    houses: {
+      uid0: {
+        Name: '',
+        Location: '',
+        Images: ['from the storage folder with same ID'],
+        Description: '',
+        Status: '',
+        Price: '',
+        Bedrooms: null,
+        Bathrooms: null,
+        Garage: null,
+        Area: '',
+        Amenities: []
+      }
+    },
+    land: {
+      uid0: {
+        Name: '',
+        Location: '',
+        Images: ['from the storage folder with same ID'],
+        Description: '',
+        Status: '',
+        Price: '',
+        Land_type: '',
+        Area: '',
+        Amenities: []
+      }
+    },
+    cars: {
+      uid0: {
+        Brand: '',
+        Model: '',
+        Location: '',
+        Images: ['from the storage folder with same ID'],
+        Description: '',
+        Price: '',
+        Year: '',
+        Condition: '',
+        Transmission: '',
+        Registered: '',
+        Mileage: '',
+      }
+    }
+  }
 })(jQuery);
 
 /**
  * Make all the image folder become one
  * Delete unnecessary images
- * Work on maing the email work
  * Prevent the user from accesing the admin page if it isn't me or kenny.
  * work on authenticating only me and Mr Kenny
  * Uploading files should have an admin page which authenticates me and Kenny.
@@ -466,4 +591,5 @@
  ***** When uploading and user leaves without finishing upload, they shuolf be preomted first of they wish to discard the whole work.
 
  * Work on deletiing AD on page and reflecting on DB. This should bring a Pop-UP to confirm deletion (confrim is enough)
+ * Close off test mode in firebase
  * */
