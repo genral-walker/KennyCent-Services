@@ -449,14 +449,9 @@
     },
 
     fromInputs: {
-      get Name() {
-        if ($('#title')) {
-          return $('#title').val();
-        } else {
-          const name = $('#brand').val() + ' ' + $('#car-model').val();
-          return name;
-        }
-      },
+      Name: $('#title'),
+      Brand: $('#brand'),
+      Model: $('#car-model'),
       Location: $('#location'),
       Description: $('#description'),
       Status: $('#sale-status'),
