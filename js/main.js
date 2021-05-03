@@ -12,8 +12,8 @@
   };
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
-  // Initialize Firestore and Auth
-  const firestore = firebase.firestore(), auth = firebase.auth(), storage = firebase.storage();
+  // Initialize Firestore and Auth andStorage
+  const firestore = firebase.firestore(), auth = firebase.auth(), storage = firebase.storage().ref();
 
   // Preloader
   $(window).on('load', function () {
@@ -449,37 +449,36 @@
     },
 
     fromInputs: {
-      Name: $('#title'),
-      Brand: $('#brand'),
-      Model: $('#car-model'),
-      Location: $('#location'),
-      Description: $('#description'),
-      Status: $('#sale-status'),
-      Price: $('#price'),
-      Bedrooms: $('#bedrooms'),
-      Bathrooms: $('#bathrooms'),
-      Garage: $('#garage'),
-      Area: $('#area'),
-      Amenities: $('#amenities'),
-      'Type Of Land': $('#land-type'),
-      Year: $('#year'),
-      Condition: $('#condition'),
-      Transmission: $('#transmission'),
-      Registered: $('#registered'),
-      Mileage: $('#mileage'),
+      Name: '#title',
+      Brand: '#brand',
+      Model: '#car-model',
+      Location: '#location',
+      Description: '#description',
+      Status: '#sale-status',
+      Price: '#price',
+      Bedrooms: '#bedrooms',
+      Bathrooms: '#bathrooms',
+      Garage: '#garage',
+      Area: '#area',
+      Amenities: '#amenities',
+      'Type Of Land': '#land-type',
+      Year: '#year',
+      Condition: '#condition',
+      Transmission: '#transmission',
+      Registered: '#registered',
+      Mileage: '#mileage',
     },
 
     formImages: {
       dataReferenceId: 'dataid',
       images: []
-    },
+    }
 
-    dataToSubmit : ''
   };
 
   /*--/ Admin Page Code /--*/
 
-  // Check what typemof data user wants to upload and display from related to that
+  // Check what type of data user wants to upload and display from related to that
   $('#upload').change(e => {
 
     switch (e.target.value) {
@@ -505,74 +504,58 @@
   $('.form-upload').submit(function (event) {
     event.preventDefault();
 
-    // Check what category user wants to upload
-    const uploadCategory = $('#upload').val();
+    // UI CHANGES TO SHOW UPLOAIND
+    $(this).css({ 'pointer-events': 'none' });
+    $('.form-upload button').text('Uploading...');
 
-    // GET ALL THE DATA FOR A FORM SESSION UPLOAD
-    const data = Object.entries(projectData.fromInputs).map(([key, value]) => [key, value && value.val()]);
+    // GET ALL THE DATA FOR A FORM SESSION UPLOADED
+    const data = Object.entries(projectData.fromInputs).map(([key, value]) => [key, $(value).val()]);
 
-    // FILTER THE DATA TO RETURN ON THOSE WITH VALUES 
-     const filteredData = Object.fromEntries(
+    // FILTER THE DATA TO RETURN ONLY THOSE WITH VALUES 
+    const filteredData = Object.fromEntries(
       data.filter(([key, value]) => value
-    ));
+      ));
 
-    console.log(filteredData);
-    // projectData.dataToSubmit = filteredData;
 
+    // once filteredData is gotten... Upload it first....
+    firestore.collection($('#upload').val()).add(filteredData)
+      // ...Then Upload the Image
+      .then(dataSnapshot => {
+        // GET ONLY THE IMAGE TAG'S DATA
+        const imageUploads = document.querySelector('#file').files;
+
+        // Create a reference to folder to contain all this particular upload's images
+        const currentCategoryRef = storage.child(dataSnapshot.id);
+
+        for (let i = 0; i < imageUploads.length; i++) {
+          let file = imageUploads[i];
+
+          // Create a reference to the file under the currentCategoryRef
+          const currentImageRef = storage.child(`${currentCategoryRef}/${file.name}`);
+
+          // Upload the single image 
+          currentImageRef.put(file);
+        }
+      })
+      .then(() => {
+        // UI CHANGES TO SHOW UPLOADED
+        $(this).css({ 'pointer-events': 'auto' });
+        alert('Data Uploaded');
+        document.querySelector('.form-upload').reset();
+        $('.form-upload button').text('Upload');
+      }) 
+      .catch(error => alert(error));
+    ;
   });
 
-  /* firestore.collection('walke').get().then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${doc.data()}`);
+  /*
+  firestore.collection('cars').get().then(querySnapshot => {
+      querySnapshot.forEach((doc) => {
+        console.log( doc.id, doc.data());
+      });
     });
-});; */
+  */
 
-
-  const ads = {
-    houses: {
-      uid0: {
-        Name: '',
-        Location: '',
-        Images: ['from the storage folder with same ID'],
-        Description: '',
-        Status: '',
-        Price: '',
-        Bedrooms: null,
-        Bathrooms: null,
-        Garage: null,
-        Area: '',
-        Amenities: []
-      }
-    },
-    land: {
-      uid0: {
-        Name: '',
-        Location: '',
-        Images: ['from the storage folder with same ID'],
-        Description: '',
-        Status: '',
-        Price: '',
-        Land_type: '',
-        Area: '',
-        Amenities: []
-      }
-    },
-    cars: {
-      uid0: {
-        Brand: '',
-        Model: '',
-        Location: '',
-        Images: ['from the storage folder with same ID'],
-        Description: '',
-        Price: '',
-        Year: '',
-        Condition: '',
-        Transmission: '',
-        Registered: '',
-        Mileage: '',
-      }
-    }
-  }
 })(jQuery);
 
 /**
@@ -583,8 +566,10 @@
  * Uploading files should have an admin page which authenticates me and Kenny.
  * We Two should be the only ones capable of uoloading and deleting from the SITE.
  * Work on uploading files on the page and reflecting on db
+ * Mileage, Price and area should have their sign when being uploaded to the ui
  ***** When uploading and user leaves without finishing upload, they shuolf be preomted first of they wish to discard the whole work.
 
  * Work on deletiing AD on page and reflecting on DB. This should bring a Pop-UP to confirm deletion (confrim is enough)
  * Close off test mode in firebase
  * */
+

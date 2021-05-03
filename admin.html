@@ -98,11 +98,92 @@
 
 
       </div>
-      <div class="from-body">
-        
-      </div>
       <form class="form-a form-upload">
-       
+        <div class="row">
+          <div class="col-md-8 mb-2">
+            <div class="form-group">
+              <label for="file">Add Photo</label>
+              <input type="file" id="file" accept="image/*" multiple class="form-control form-control-lg form-control-a">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="location">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="brand">Car Brand</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="brand"
+                placeholder="Eg Toyota, Lexus etc">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="car-model">Car Model</label>
+              <input type="text" class="form-control form-control-lg form-control-a" id="car-model"
+                placeholder="eg Venza, Sienna, Corolla Etc">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="year">Year</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="year">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="condition">Condition</label>
+              <select class="form-control form-control-lg form-control-a" id="condition">
+                <option>Brand New</option>
+                <option>Nigerian Used</option>
+                <option>Foreign Used</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="transmission">Transmission</label>
+              <select class="form-control form-control-lg form-control-a" id="transmission">
+                <option>Automatic</option>
+                <option>Manual</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="registered">Registered?</label>
+              <select class="form-control form-control-lg form-control-a" id="registered">
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="form-group">
+              <label for="mileage">Mileage</label>
+              <input type="number" class="form-control form-control-lg form-control-a" id="mileage"
+                placeholder="Mileage (km)">
+    
+              <div class="form-group mt-3">
+                <label for="price">Price</label>
+                <input type="number" class="form-control form-control-lg form-control-a" id="price">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8 mb-2">
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control form-control-lg form-control-a"
+                placeholder="Add more description to your Ad" id="description" cols="30" rows="30"
+                style="height: 10rem;"></textarea>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <button type="submit" class="btn btn-b">Upload</button>
+          </div>
+        </div>
     </div>
     </form>
   </div>
