@@ -67,11 +67,14 @@
   <section class="intro-single">
     <div class="container">
       <div class="row">
-        <div class="col-md-12 col-lg-8">
+        <div class="col-md-8">
           <div class="title-single-box">
             <h1 class="title-single">Welcome Mr <span class="adminame">kenny</span></h1>
             <span class="color-text-a">Upload New Ads to Your Page</span>
           </div>
+        </div>
+        <div class="col-md-4 d-flex justify-content-end">
+          <button class="btn btn-b btn-logout align-self-center">Logout</button>
         </div>
       </div>
     </div>
@@ -103,7 +106,8 @@
           <div class="col-md-8 mb-2">
             <div class="form-group">
               <label for="file">Add Photo</label>
-              <input type="file" id="file" accept="image/*" multiple class="form-control form-control-lg form-control-a">
+              <input type="file" id="file" accept="image/*" multiple
+                class="form-control form-control-lg form-control-a">
             </div>
           </div>
           <div class="col-md-4 mb-2">
@@ -165,7 +169,7 @@
               <label for="mileage">Mileage</label>
               <input type="number" class="form-control form-control-lg form-control-a" id="mileage"
                 placeholder="Mileage (km)">
-    
+
               <div class="form-group mt-3">
                 <label for="price">Price</label>
                 <input type="number" class="form-control form-control-lg form-control-a" id="price">
@@ -274,6 +278,12 @@
 
   <!-- Template Main Javascript File -->
   <script src="js/main.js"></script>
+
+  <script>
+    firebase.auth().onAuthStateChanged(user => {
+    if (!user) window.location.href = 'index.html';
+    });
+  </script>
 
 </body>
 

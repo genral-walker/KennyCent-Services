@@ -469,14 +469,24 @@
       Mileage: '#mileage',
     },
 
-    formImages: {
-      dataReferenceId: 'dataid',
-      images: []
-    }
-
+    signedIn: false
   };
 
-  /*--/ Admin Page Code /--*/
+  // LOGIN CODE
+  const provider = new firebase.auth.GoogleAuthProvider();
+  $('.admin').click((event) => {
+    event.preventDefault();
+    auth.signInWithPopup(provider).then(() => window.location.href = 'admin.html')
+      .catch(err => alert(err + ' Please try again'));
+  });
+
+  // LOGOUT CODE
+  $('.btn-logout').click(() => {
+    auth.signOut()
+      .then(alert('Signed out'))
+      .then(() => window.location.href = 'index.html')
+      .catch(err => console.log(err))
+  });
 
   // Check what type of data user wants to upload and display from related to that
   $('#upload').change(e => {
@@ -498,7 +508,6 @@
         break;
     }
   });
-
 
   // GET ALL UPLOAD FORM DATA INPUTED
   $('.form-upload').submit(function (event) {
@@ -543,10 +552,22 @@
         alert('Data Uploaded');
         document.querySelector('.form-upload').reset();
         $('.form-upload button').text('Upload');
-      }) 
+      })
       .catch(error => alert(error));
     ;
   });
+
+
+  // DISPLAY BACKEND DATA IN WEBPAGE
+
+  // HOMEPAGE
+
+  // CARS PAGE
+
+  // PROPERTIES PAGE
+
+  // SINGLE PROPERTY
+
 
   /*
   firestore.collection('cars').get().then(querySnapshot => {
@@ -570,6 +591,10 @@
  ***** When uploading and user leaves without finishing upload, they shuolf be preomted first of they wish to discard the whole work.
 
  * Work on deletiing AD on page and reflecting on DB. This should bring a Pop-UP to confirm deletion (confrim is enough)
- * Close off test mode in firebase
+ * Close off test mode in firestore and storage
+ * Add a sign out button
+ *
+ * check to see if user is still logged in, if still logged in use snapshot to continue fecthing data
+ * user shouln't be able to upload if they arent't regocnised.
  * */
 
