@@ -479,13 +479,13 @@
     $(this).css({ 'pointer-events': 'none' });
 
     auth.onAuthStateChanged(user => {
-      if (user) {
-        window.location.href = 'admin.html';
-      } else {
-        
-        auth.signInWithPopup(provider).then(userSnapshot => {
-          window.location.href = 'admin.html';
 
+      if (user && (user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762' || user.uid === 'flvMwThkjjUHSCOKaB7QmuCE4Wo1')) {
+        window.location.href = 'admin.html';
+
+      } else if (!user) {
+
+        auth.signInWithPopup(provider).then(userSnapshot => {
           if (userSnapshot.user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762' || userSnapshot.user.uid === 'flvMwThkjjUHSCOKaB7QmuCE4Wo1') {
             window.location.href = 'admin.html';
           } else {
@@ -497,6 +497,9 @@
             $(this).css({ 'pointer-events': 'auto' });
           });
       }
+
+
+
     });
 
 
