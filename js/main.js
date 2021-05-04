@@ -476,14 +476,27 @@
   const provider = new firebase.auth.GoogleAuthProvider();
   $('.admin').click((event) => {
     event.preventDefault();
-    auth.signInWithPopup(provider).then(() => window.location.href = 'admin.html')
-      .catch(err => alert(err + ' Please try again'));
+
+    auth.signInWithPopup(provider).then(userSnapshot => {
+      if (userSnapshot.user.uid === 'XZpEDYtmnOODzqpAVmSF2e5JVCc2' || userSnapshot.user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762') {
+        window.location.href = 'admin.html';
+      } else {
+        alert('Unuathorized Admin... Please continue viewing our services as guest Instead.');
+      }
+    })
+      .then(() => {
+        if (auth.currentUser.uid !== 'XZpEDYtmnOODzqpAVmSF2e5JVCc2' || auth.currentUser.uid !== 'fBk79kiWvUNPBb00egMZyVlO7762') {
+          auth.currentUser.delete();
+        }
+      })
+      .catch(err => alert(err + ' Please try again.'));
+
   });
 
   // LOGOUT CODE
   $('.btn-logout').click(() => {
     auth.signOut()
-      .then(alert('Signed out'))
+      .then(alert('Signed out.'))
       .then(() => window.location.href = 'index.html')
       .catch(err => console.log(err))
   });
