@@ -474,22 +474,32 @@
 
   // LOGIN CODE
   const provider = new firebase.auth.GoogleAuthProvider();
-  $('.admin').click((event) => {
+  $('.admin').click(function (event) {
     event.preventDefault();
+    $(this).css({ 'pointer-events': 'none' });
 
-    auth.signInWithPopup(provider).then(userSnapshot => {
-      if (userSnapshot.user.uid === 'XZpEDYtmnOODzqpAVmSF2e5JVCc2' || userSnapshot.user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762') {
+    auth.onAuthStateChanged(user => {
+      if (user) {
         window.location.href = 'admin.html';
       } else {
-        alert('Unuathorized Admin... Please continue viewing our services as guest Instead.');
+        
+        auth.signInWithPopup(provider).then(userSnapshot => {
+          window.location.href = 'admin.html';
+
+          if (userSnapshot.user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762' || userSnapshot.user.uid === 'flvMwThkjjUHSCOKaB7QmuCE4Wo1') {
+            window.location.href = 'admin.html';
+          } else {
+            alert('🚫 Unuathorized Admin. Please continue viewing our website as guest Instead. Thank you.');
+          }
+        })
+          .catch(err => {
+            alert(err + ' Please try again.');
+            $(this).css({ 'pointer-events': 'auto' });
+          });
       }
-    })
-      .then(() => {
-        if (auth.currentUser.uid !== 'XZpEDYtmnOODzqpAVmSF2e5JVCc2' || auth.currentUser.uid !== 'fBk79kiWvUNPBb00egMZyVlO7762') {
-          auth.currentUser.delete();
-        }
-      })
-      .catch(err => alert(err + ' Please try again.'));
+    });
+
+
 
   });
 
@@ -497,7 +507,9 @@
   $('.btn-logout').click(() => {
     auth.signOut()
       .then(alert('Signed out.'))
-      .then(() => window.location.href = 'index.html')
+      .then(() => {
+        window.location.href = 'index.html';
+      })
       .catch(err => console.log(err))
   });
 
