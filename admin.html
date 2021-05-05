@@ -281,7 +281,7 @@
 
   <script>
     firebase.auth().onAuthStateChanged(user => {
-      if (user) {
+      if (user && (user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762' || user.uid === 'flvMwThkjjUHSCOKaB7QmuCE4Wo1')) {
         $('body').fadeIn('slow').css({ 'display': 'block' });
       } else {
         window.location.href = 'index.html';

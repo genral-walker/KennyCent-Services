@@ -489,24 +489,15 @@
           if (userSnapshot.user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762' || userSnapshot.user.uid === 'flvMwThkjjUHSCOKaB7QmuCE4Wo1') {
             window.location.href = 'admin.html';
           } else {
-            projectData.unAuthorizedAdminIsSignedIn = true;
             alert('🚫 Unuathorized Admin. Please continue viewing our website as guest Instead. Thank you.');
           }
         })
           .catch(err => {
             console.log(err + ' LOGIN CATCH BLOCK');
             $(this).css({ 'pointer-events': 'auto' });
-          });
+          })
       }
-
     });
-  });
-
-  // SIGNOUT A NON ADMIN TO AVOID THEM ACCESS TO ADMIN PRIVILEGES
-  auth.onAuthStateChanged(user => {
-    if (user && projectData.unAuthorizedAdminIsSignedIn) {
-      auth.signOut().then(() => console.log('signing out Illegal'))
-    }
   });
 
   // LOGOUT CODE
