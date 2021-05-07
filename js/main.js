@@ -490,6 +490,9 @@
             window.location.href = 'admin.html';
           } else {
             alert('🚫 Unuathorized Admin. Please continue viewing our website as guest Instead. Thank you.');
+            projectData.unAuthorizedAdminIsSignedIn = true;
+            console.log(projectData.unAuthorizedAdminIsSignedIn);
+            $(this).css({ 'pointer-events': 'auto' });
           }
         })
           .catch(err => {
@@ -531,6 +534,16 @@
     }
   });
 
+
+  const checkUploadType = () => {
+    if ($('#upload').val() !== 'cars') {
+      return firestore.collection('properties')
+    } else {
+      return firestore.collection($('#upload').val())
+    }
+
+  };
+
   // GET ALL UPLOAD FORM DATA INPUTED
   $('.form-upload').submit(function (event) {
     event.preventDefault();
@@ -547,9 +560,11 @@
       data.filter(([key, value]) => value
       ));
 
+    // RECORD TIME OF UPLOAD TOO
+    const { serverTimestamp } = firebase.firestore.FieldValue;
 
     // once filteredData is gotten... Upload it first....
-    firestore.collection($('#upload').val()).add(filteredData)
+    checkUploadType().add({ ...filteredData, createdAt: serverTimestamp() })
       // ...Then Upload the Image
       .then(dataSnapshot => {
         // GET ONLY THE IMAGE TAG'S DATA
@@ -576,13 +591,29 @@
         $('.form-upload button').text('Upload');
       })
       .catch(error => alert(error));
-    ;
   });
 
 
   // DISPLAY BACKEND DATA IN WEBPAGE
 
   // HOMEPAGE
+  auth.onAuthStateChanged(user => {
+    $('#property-carousel').html('');
+    $('#new-carousel').html('');
+
+    let carRef = firestore.collection('cars'),
+      propertyRef = firestore.collection('properties'),
+      unSubscribeCarRef,
+      unSubscribePropertyRef;
+
+    if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
+
+
+    } else {
+
+
+    }
+  });
 
   // CARS PAGE
 
