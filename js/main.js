@@ -475,7 +475,6 @@
           } else {
             alert('🚫 Unuathorized Admin. Please continue viewing our website as guest Instead. Thank you.');
             projectData.unAuthorizedAdminIsSignedIn = true;
-            console.log(projectData.unAuthorizedAdminIsSignedIn);
             $(this).css({ 'pointer-events': 'auto' });
           }
         })
@@ -582,14 +581,141 @@
   // DISPLAY BACKEND DATA IN WEBPAGE
   
   // Reusable Display Functions
-  const retrieveData = dataSnapshot => {
+  const retrieveData = (querySnapshot, page, parent) => {
+    
+    // LOOP THROUGH ALL THE DATA GOTTEN FROM FIRESTORE
+    querySnapshot.forEach(doc => {
+      // GET IMAGE REFRENCE
+      const imageFolder = firebase.storage().ref(`gs:/kennycent-services.appspot.com/${doc.id}`);
+
+      // RETRIEVE IMAGES FROM IMAGE REFERENCE
+      imageFolder.listAll()
+        .then(imageFile => {
+
+          // ONLY SELECT FIRST IMAGE
+          imageFile.items.forEach((imageRef, idx) => {
+            idx === 0 && imageRef.getDownloadURL().then(url => {
+
+              // ADD ALL NECESSARY TO HTML (IMAGE AND DATA)
+              let cumulatedData = `
+                ${page === 'homepage' ?
+                `<div class="carousel-item-b" data-id-${doc.id}>
+                <div class="card-box-a card-shadow">`
+                :
+                  `<div class="card-box-a card-shadow" data-id-${doc.id}>`}
+                    <div class="delete-ad">
+                      <i class="fa fa-ban" aria-hidden="true"></i>
+                    </div>
+                    <div class="img-box-a">
+                      <img src="${url}" 
+                      alt="${doc.data().Name ? doc.data().Name : ''} ${doc.data().Brand ? doc.data().Brand : ''} ${doc.data().Model ? doc.data().Model : ''}" 
+                      class="img-a">
+                    </div>
+                      <div class="card-overlay">
+                        <div class="card-overlay-a-content">
+                          <div class="card-header-a">
+                            <h2 class="card-title-a"> 
+
+                              ${doc.data().Name ?
+                               `<a href="property-single.html">${doc.data().Name}</a>`
+                                   :
+                                `<a href="property-single.html">${doc.data().Brand ? doc.data().Brand : ''}
+                                <br /> ${doc.data().Model ? doc.data().Model : ''}</a>`
+                                  }
+                            </h2>
+                          </div>
+                          <div class="card-body-a">
+                            <a href="property-single.html" class="link-a">Click here to view
+                              <span class="ion-ios-arrow-forward"></span>
+                            </a>
+                          </div>
+                          <div class="card-footer-a">
+                          ${doc.data().Brand ?
+                            `<ul class="card-info d-flex justify-content-around">
+                            <li>
+                                <h4 class="card-info-title">Condition</h4>
+                                <span>${doc.data().Condition ? doc.data().Condition : ''}</span>
+                              </li>
+                              <li>
+                                <h4 class="card-info-title">Year</h4>
+                                <span>${doc.data().Year ? doc.data().Year : ''}</span>
+                              </li>
+                              <li>
+                                <h4 class="card-info-title">Transmission</h4>
+                                <span>${doc.data().Transmission ? doc.data().Transmission : ''}</span>
+                              </li>
+                            </ul>`
+                            :
+                           `<ul class="card-info d-flex justify-content-around">
+                            <li>
+                                <h4 class="card-info-title">Area</h4>
+                                ${doc.data().Area ?
+                                `<span>${doc.data().Area}
+                                  <sup>2</sup>
+                                  </span>` :
+                                  ''}
+                              </li>
+                              <li>
+                                <h4 class="card-info-title">Location</h4>
+                                <span>${doc.data().Location ? doc.data().Location : ''}</span>
+                              </li>
+                              <li>
+                                <h4 class="card-info-title">Garages</h4>
+                                <span>${doc.data().Garage ? doc.data().Garage : ''}</span>
+                              </li>
+                            </ul>`
+                                  }
+                           
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                   ${page === 'homepage' ? '</div>' : ''}`;
+
+              // DIsplay the data
+              $(parent).append(cumulatedData);
+              
+              // refresh The Carousel
+              if (page === 'homepage') {
+              let $owl = $(parent);
+              $owl.trigger('destroy.owl.carousel');
+              $owl.html($owl.find('.owl-stage-outer').html()).removeClass('owl-loaded');
+              $owl.owlCarousel(projectData.carouselRule);
+              }
+          
+            })
+
+          })
+        })
+    });
+  };
+
+  const displayData = (page, category, parent, onStream, unSubscribeRef) => {
+
+    const dataLengthCheck = () => {
+      return page === 'homepage' ?
+        category.orderBy("createdAt", "desc").limit(5) :
+        category.orderBy("createdAt", "desc")
+    };
+
+     if (onStream) {
+      unSubscribeRef = dataLengthCheck().onSnapshot(querySnapshot =>{
+        $(parent).html('');
+        retrieveData(querySnapshot, page, parent)
+      });
+
+    } else {
+      $(parent).html('');
+      dataLengthCheck().get().then(querySnapshot => {
+        retrieveData(querySnapshot, page, parent)
+      })
+        .catch(err => console.log(err));
+    }
 
   };
 
-  // HOMEPAGE
+  // FOR HOMEPAGE
   auth.onAuthStateChanged(user => {
-     $('#property-carousel').html('');
-     $('#new-carousel').html('');
 
     let carRef = firestore.collection('cars'),
       propertyRef = firestore.collection('properties'),
@@ -598,145 +724,13 @@
 
     if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
 
+      displayData('homepage', propertyRef, '#property-carousel', true, unSubscribePropertyRef);
+      displayData('homepage', carRef, '#new-carousel', true, unSubscribeCarRef);
+
     } else {
 
-      const displayData = (page = false, category, parent, onStream = false, unSubscribeRef= false) => {
-
-        const dataLengthCheck = () => {
-          return page === 'homepage' ?
-            category.orderBy("createdAt", "asc").limit(5) :
-            category.orderBy("createdAt", "asc")
-        };
-
-        /*
-         if (onStream) {
-          return unSubscribeRef = dataLengthCheck().onSnapshot()
-        } else {
-
-        }
-        */
-
-        dataLengthCheck().get().then(querySnapshot => {
-
-          querySnapshot.forEach(doc => {
-
-            // GET DATAS
-            // GET IMAGE
-            const imageFolder = firebase.storage().ref(`gs:/kennycent-services.appspot.com/${doc.id}`);
-
-            imageFolder.listAll()
-              .then(imageFile => {
-
-                imageFile.items.forEach((imageRef, idx) => {
-                  idx === 0 && imageRef.getDownloadURL().then(url => {
-
-                    let cumulatedData = `
-                   <div class="carousel-item-b" data-id-${doc.id}>
-                        <div class="card-box-a card-shadow">
-                          <div class="delete-ad">
-                            <i class="fa fa-ban" aria-hidden="true"></i>
-                          </div>
-                          <div class="img-box-a">
-                            <img src="${url}" 
-                            alt="${doc.data().Name ? doc.data().Name : ''} ${doc.data().Brand ? doc.data().Brand : ''} ${doc.data().Model ? doc.data().Model : ''}" 
-                            class="img-a">
-                          </div>
-                            <div class="card-overlay">
-                              <div class="card-overlay-a-content">
-                                <div class="card-header-a">
-                                  <h2 class="card-title-a"> 
-
-                                    ${doc.data().Name ?
-                                     `<a href="property-single.html">${doc.data().Name}</a>`
-                                         :
-                                      `<a href="property-single.html">${doc.data().Brand ? doc.data().Brand : ''}
-                                      <br /> ${doc.data().Model ? doc.data().Model : ''}</a>`
-                                        }
-                                  </h2>
-                                </div>
-                                <div class="card-body-a">
-                                  <a href="property-single.html" class="link-a">Click here to view
-                                    <span class="ion-ios-arrow-forward"></span>
-                                  </a>
-                                </div>
-                                <div class="card-footer-a">
-                                ${doc.data().Brand ?
-                                  `<ul class="card-info d-flex justify-content-around">
-                                  <li>
-                                      <h4 class="card-info-title">Condition</h4>
-                                      <span>${doc.data().Condition ? doc.data().Condition : ''}</span>
-                                    </li>
-                                    <li>
-                                      <h4 class="card-info-title">Year</h4>
-                                      <span>${doc.data().Year ? doc.data().Year : ''}</span>
-                                    </li>
-                                    <li>
-                                      <h4 class="card-info-title">Transmission</h4>
-                                      <span>${doc.data().Transmission ? doc.data().Transmission : ''}</span>
-                                    </li>
-                                  </ul>`
-                                  :
-                                 `<ul class="card-info d-flex justify-content-around">
-                                  <li>
-                                      <h4 class="card-info-title">Area</h4>
-                                      ${doc.data().Area ?
-                                      `<span>${doc.data().Area}
-                                        <sup>2</sup>
-                                        </span>` :
-                                        ''}
-                                    </li>
-                                    <li>
-                                      <h4 class="card-info-title">Location</h4>
-                                      <span>${doc.data().Location ? doc.data().Location : ''}</span>
-                                    </li>
-                                    <li>
-                                      <h4 class="card-info-title">Garages</h4>
-                                      <span>${doc.data().Garage ? doc.data().Garage : ''}</span>
-                                    </li>
-                                  </ul>`
-                                        }
-                                 
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div> `;
-
-                    // DIsplay the data
-                    $(parent).append(cumulatedData);
-                    
-                    // refresh The Carousel
-                    let $owl = $(parent);
-                    $owl.trigger('destroy.owl.carousel');
-                    $owl.html($owl.find('.owl-stage-outer').html()).removeClass('owl-loaded');
-                    $owl.owlCarousel(projectData.carouselRule);
-                  })
-
-                })
-              })
-          });
-        })
-          .catch(err => console.log(err));
-      };
-
-      displayData('homepage', carRef, '#property-carousel');
       displayData('homepage', propertyRef, '#new-carousel');
-
-
-      /**
-   
-       * 
-  
-  if($('.owl-carousel').hasClass('owl-theme')){ //resize event was triggering an error, this if statement is to go around it
-  
-              $('.owl-carousel').trigger('destroy.owl.carousel'); //these 3 lines kill the owl, and returns the markup to the initial state
-              $('.owl-carousel').find('.owl-stage-outer').children().unwrap();
-              $('.owl-carousel').removeClass("owl-center owl-loaded owl-text-select-on");
-  
-              $(".owl-carousel").owlCarousel(); //re-initialise the owl
-          }
-       * */
-
+      displayData('homepage', carRef, '#property-carousel');
 
       unSubscribeCarRef && unSubscribeCarRef();
       unSubscribePropertyRef && unSubscribePropertyRef();
@@ -749,14 +743,6 @@
 
   // SINGLE PROPERTY
 
-
-  /*
-  firestore.collection('cars').get().then(querySnapshot => {
-                          querySnapshot.forEach((doc) => {
-                            console.log(doc.id, doc.data());
-                          });
-    });
-  */
 
 })(jQuery);
 
