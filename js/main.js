@@ -579,10 +579,11 @@
 
 
   // DISPLAY BACKEND DATA IN WEBPAGE
-  
+
   // Reusable Display Functions
   const retrieveData = (querySnapshot, page, parent) => {
-    
+    page === 'homepage' && $('.loader').fadeOut(700);
+    $(parent).html('');
     // LOOP THROUGH ALL THE DATA GOTTEN FROM FIRESTORE
     querySnapshot.forEach(doc => {
       // GET IMAGE REFRENCE
@@ -599,10 +600,11 @@
               // ADD ALL NECESSARY TO HTML (IMAGE AND DATA)
               let cumulatedData = `
                 ${page === 'homepage' ?
-                `<div class="carousel-item-b" data-id-${doc.id}>
+                  `<div class="carousel-item-b" data-id-${doc.id}>
                 <div class="card-box-a card-shadow">`
-                :
-                  `<div class="card-box-a card-shadow" data-id-${doc.id}>`}
+                  :
+                  `<div class="col-md-4" data-id-${doc.id}>
+                  <div class="card-box-a card-shadow">`}
                     <div class="delete-ad">
                       <i class="fa fa-ban" aria-hidden="true"></i>
                     </div>
@@ -617,11 +619,11 @@
                             <h2 class="card-title-a"> 
 
                               ${doc.data().Name ?
-                               `<a href="property-single.html">${doc.data().Name}</a>`
-                                   :
-                                `<a href="property-single.html">${doc.data().Brand ? doc.data().Brand : ''}
+                  `<a href="property-single.html">${doc.data().Name}</a>`
+                  :
+                  `<a href="property-single.html">${doc.data().Brand ? doc.data().Brand : ''}
                                 <br /> ${doc.data().Model ? doc.data().Model : ''}</a>`
-                                  }
+                }
                             </h2>
                           </div>
                           <div class="card-body-a">
@@ -631,7 +633,7 @@
                           </div>
                           <div class="card-footer-a">
                           ${doc.data().Brand ?
-                            `<ul class="card-info d-flex justify-content-around">
+                  `<ul class="card-info d-flex justify-content-around">
                             <li>
                                 <h4 class="card-info-title">Condition</h4>
                                 <span>${doc.data().Condition ? doc.data().Condition : ''}</span>
@@ -645,15 +647,15 @@
                                 <span>${doc.data().Transmission ? doc.data().Transmission : ''}</span>
                               </li>
                             </ul>`
-                            :
-                           `<ul class="card-info d-flex justify-content-around">
+                  :
+                  `<ul class="card-info d-flex justify-content-around">
                             <li>
                                 <h4 class="card-info-title">Area</h4>
                                 ${doc.data().Area ?
-                                `<span>${doc.data().Area}
+                    `<span>${doc.data().Area}
                                   <sup>2</sup>
                                   </span>` :
-                                  ''}
+                    ''}
                               </li>
                               <li>
                                 <h4 class="card-info-title">Location</h4>
@@ -664,25 +666,25 @@
                                 <span>${doc.data().Garage ? doc.data().Garage : ''}</span>
                               </li>
                             </ul>`
-                                  }
+                }
                            
                           </div>
                         </div>
                       </div>
                     </div>
-                   ${page === 'homepage' ? '</div>' : ''}`;
+                    </div>`;
 
               // DIsplay the data
               $(parent).append(cumulatedData);
-              
+
               // refresh The Carousel
               if (page === 'homepage') {
-              let $owl = $(parent);
-              $owl.trigger('destroy.owl.carousel');
-              $owl.html($owl.find('.owl-stage-outer').html()).removeClass('owl-loaded');
-              $owl.owlCarousel(projectData.carouselRule);
+                let $owl = $(parent);
+                $owl.trigger('destroy.owl.carousel');
+                $owl.html($owl.find('.owl-stage-outer').html()).removeClass('owl-loaded');
+                $owl.owlCarousel(projectData.carouselRule);
               }
-          
+
             })
 
           })
@@ -698,14 +700,12 @@
         category.orderBy("createdAt", "desc")
     };
 
-     if (onStream) {
-      unSubscribeRef = dataLengthCheck().onSnapshot(querySnapshot =>{
-        $(parent).html('');
+    if (onStream) {
+      unSubscribeRef = dataLengthCheck().onSnapshot(querySnapshot => {
         retrieveData(querySnapshot, page, parent)
       });
 
     } else {
-      $(parent).html('');
       dataLengthCheck().get().then(querySnapshot => {
         retrieveData(querySnapshot, page, parent)
       })
@@ -738,8 +738,34 @@
   });
 
   // CARS PAGE
+  auth.onAuthStateChanged(user => {
+
+    let carRef = firestore.collection('cars'),
+      unSubscribeCarRef;
+
+    if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
+      displayData('', carRef, '#car-grid', true, unSubscribeCarRef);
+
+    } else {
+      displayData('', carRef, '#car-grid');
+      unSubscribeCarRef && unSubscribeCarRef();
+    }
+  });
 
   // PROPERTIES PAGE
+  auth.onAuthStateChanged(user => {
+
+    let propertyRef = firestore.collection('properties'),
+      unSubscribePropertyRef;
+
+    if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
+      displayData('', propertyRef, '#property-grid', true, unSubscribePropertyRef);
+
+    } else {
+      displayData('', propertyRef, '#property-grid');
+      unSubscribePropertyRef && unSubscribePropertyRef();
+    }
+  });
 
   // SINGLE PROPERTY
 

@@ -494,6 +494,18 @@ a:hover {
   animation: animate-preloader 1s linear infinite;
 }
 
+/* Loader */
+.loader {
+  border: 6px solid #f2f2f2;
+  border-top: 6px solid rgba(99, 163, 242, 255);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin: 2rem auto 6rem;
+  -webkit-animation: animate-preloader 1s linear infinite;
+  animation: animate-preloader 1s linear infinite;
+}
+
 @-webkit-keyframes animate-preloader {
   0% {
     -webkit-transform: rotate(0deg);
@@ -1029,10 +1041,6 @@ a:hover {
 
 /*------/ Property Grid /-----*/
 
-.property-grid .grid-option {
-  text-align: right;
-  margin-bottom: 2rem;
-}
 
 .property-grid .grid-option .custom-select {
   border-radius: 0;
