@@ -438,7 +438,6 @@
     },
 
     unAuthorizedAdminIsSignedIn: false,
-
     carouselRule: {
       loop: true,
       margin: 30,
@@ -578,12 +577,13 @@
   });
 
 
-  // DISPLAY BACKEND DATA IN WEBPAGE
+  //******** DISPLAY BACKEND DATA IN WEBPAGE *******//
 
   // Reusable Display Functions
-  const retrieveData = (querySnapshot, page, parent) => {
-    page === 'homepage' && $('.loader').fadeOut(700);
+  const retrieveData = (querySnapshot, page, parent, category) => {
+    $('.loader').fadeOut(700);
     $(parent).html('');
+
     // LOOP THROUGH ALL THE DATA GOTTEN FROM FIRESTORE
     querySnapshot.forEach(doc => {
       // GET IMAGE REFRENCE
@@ -600,10 +600,10 @@
               // ADD ALL NECESSARY TO HTML (IMAGE AND DATA)
               let cumulatedData = `
                 ${page === 'homepage' ?
-                  `<div class="carousel-item-b" data-id-${doc.id}>
+                  `<div class="carousel-item-b single-ad ${category.id}" id="${doc.id}">
                 <div class="card-box-a card-shadow">`
                   :
-                  `<div class="col-md-4" data-id-${doc.id}>
+                  `<div class="col-md-4 single-ad ${category.id}" id="${doc.id}">
                   <div class="card-box-a card-shadow">`}
                     <div class="delete-ad">
                       <i class="fa fa-ban" aria-hidden="true"></i>
@@ -702,12 +702,12 @@
 
     if (onStream) {
       unSubscribeRef = dataLengthCheck().onSnapshot(querySnapshot => {
-        retrieveData(querySnapshot, page, parent)
+        retrieveData(querySnapshot, page, parent, category)
       });
 
     } else {
       dataLengthCheck().get().then(querySnapshot => {
-        retrieveData(querySnapshot, page, parent)
+        retrieveData(querySnapshot, page, parent, category)
       })
         .catch(err => console.log(err));
     }
@@ -715,30 +715,33 @@
   };
 
   // FOR HOMEPAGE
-  auth.onAuthStateChanged(user => {
+  if (window.location.pathname === '/') {
+    auth.onAuthStateChanged(user => {
 
-    let carRef = firestore.collection('cars'),
-      propertyRef = firestore.collection('properties'),
-      unSubscribeCarRef,
-      unSubscribePropertyRef;
-
-    if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
-
-      displayData('homepage', propertyRef, '#property-carousel', true, unSubscribePropertyRef);
-      displayData('homepage', carRef, '#new-carousel', true, unSubscribeCarRef);
-
-    } else {
-
-      displayData('homepage', propertyRef, '#new-carousel');
-      displayData('homepage', carRef, '#property-carousel');
-
-      unSubscribeCarRef && unSubscribeCarRef();
-      unSubscribePropertyRef && unSubscribePropertyRef();
-    }
-  });
+      let carRef = firestore.collection('cars'),
+        propertyRef = firestore.collection('properties'),
+        unSubscribeCarRef,
+        unSubscribePropertyRef;
+  
+      if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
+  
+        displayData('homepage', propertyRef, '#property-carousel', true, unSubscribePropertyRef);
+        displayData('homepage', carRef, '#new-carousel', true, unSubscribeCarRef);
+  
+      } else {
+  
+        displayData('homepage', propertyRef, '#new-carousel');
+        displayData('homepage', carRef, '#property-carousel');
+  
+        unSubscribeCarRef && unSubscribeCarRef();
+        unSubscribePropertyRef && unSubscribePropertyRef();
+      }
+    });
+  }
 
   // CARS PAGE
-  auth.onAuthStateChanged(user => {
+  if (window.location.pathname === '/car-grid.html') {
+   auth.onAuthStateChanged(user => {
 
     let carRef = firestore.collection('cars'),
       unSubscribeCarRef;
@@ -750,10 +753,12 @@
       displayData('', carRef, '#car-grid');
       unSubscribeCarRef && unSubscribeCarRef();
     }
-  });
+  }); 
+  }
 
   // PROPERTIES PAGE
-  auth.onAuthStateChanged(user => {
+  if (window.location.pathname === '/property-grid.html') {
+   auth.onAuthStateChanged(user => {
 
     let propertyRef = firestore.collection('properties'),
       unSubscribePropertyRef;
@@ -765,9 +770,208 @@
       displayData('', propertyRef, '#property-grid');
       unSubscribePropertyRef && unSubscribePropertyRef();
     }
-  });
-
+  }); 
+  }
+  
   // SINGLE PROPERTY
+  $(document).on('click', '.single-ad', function (event) {
+    let docId = $(this).attr('id');
+    let category = $(this).attr('class').split(' ').pop();
+
+    // SAVE TO ABOVE INFOS TO SESSION STORAGE TO USE IN SINGLE AD PAGE
+    if (event.target.tagName === 'A') {
+      sessionStorage.clear();
+      sessionStorage.setItem('adData', JSON.stringify({ docId: docId, category: category }));
+    }
+  });
+  
+  if (window.location.pathname === '/property-single.html') {
+   const displaySingleAd = () => {
+    const storageData = JSON.parse(sessionStorage.getItem('adData'));
+
+    firestore.collection(storageData.category).doc(storageData.docId).get().then(doc => {
+
+      const data = doc.data();
+      const imageFolder = firebase.storage().ref(`gs:/kennycent-services.appspot.com/${data.id}`);
+      const imagesLists = [];
+
+        // RETRIEVE IMAGES FROM IMAGE REFERENCE
+        imageFolder.listAll()
+          .then(images => {
+            images.forEach(image =>{
+              image.getDownloadURL().then(url=>{
+                console.log(url);
+                imagesLists.push(url)
+              })
+            })
+
+          });
+
+      adDetails =()=>{
+
+        `
+      <section class="property-single nav-arrow-b">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <div id="property-single-carousel" class="owl-carousel owl-arrow gallery-property">
+              <div class="carousel-item-b">
+                <img src="img/slide-2.jpg" alt="">
+              </div>
+              <div class="carousel-item-b">
+                <img src="img/slide-3.jpg" alt="">
+              </div>
+              <div class="carousel-item-b">
+                <img src="img/slide-1.jpg" alt="">
+              </div>
+            </div>
+            <div class="row justify-content-between">
+              <div class="col-md-5 col-lg-4">
+                <div class="property-price d-flex justify-content-center foo">
+                  <div class="card-header-c d-flex">
+                    <div class="card-box-ico">
+                      <span class="ion-money">₦</span>
+                    </div>
+                    <div class="card-title-c align-self-center">
+                      <h5 class="title-c ad-price">15000</h5>
+                    </div>
+                  </div>
+                </div>
+                <div class="property-summary">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="title-box-d section-t4">
+                        <h3 class="title-d">Quick Summary</h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="summary-list">
+                    <ul class="list">
+                      <li class="d-flex justify-content-between">
+                        <strong>Location:</strong>
+                        <span>Chicago, IL 606543</span>
+                      </li>
+                      <li class="d-flex justify-content-between">
+                        <strong>Status:</strong>
+                        <span>Sale</span>
+                      </li>
+                      <li class="d-flex justify-content-between">
+                        <strong>Area:</strong>
+                        <span>340m
+                          <sup>2</sup>
+                        </span>
+                      </li>
+                      <li class="d-flex justify-content-between">
+                        <strong>Bedrooms:</strong>
+                        <span>4</span>
+                      </li>
+                      <li class="d-flex justify-content-between">
+                        <strong>Bathrooms:</strong>
+                        <span>2</span>
+                      </li>
+                      <li class="d-flex justify-content-between">
+                        <strong>Garage:</strong>
+                        <span>1</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7 col-lg-7 section-md-t3">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="title-box-d">
+                      <h3 class="title-d">Property Description</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="property-description">
+                  <p class="description color-text-a">
+                    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit
+                    neque, auctor sit amet
+                    aliquam vel, ullamcorper sit amet ligula. Cras ultricies ligula sed magna dictum porta.
+                    Curabitur aliquet quam id dui posuere blandit. Mauris blandit aliquet elit, eget tincidunt
+                    nibh pulvinar quam id dui posuere blandit.
+                  </p>
+                  <p class="description color-text-a no-margin">
+                    Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Donec rutrum congue leo eget
+                    malesuada. Quisque velit nisi,
+                    pretium ut lacinia in, elementum id enim. Donec sollicitudin molestie malesuada.
+                  </p>
+                </div>
+                <div class="row section-t3">
+                  <div class="col-sm-12">
+                    <div class="title-box-d">
+                      <h3 class="title-d">Amenities</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="amenities-list color-text-a">
+                  <ul class="list-a no-margin ad-amenities">
+                    <li>Balcony</li>
+                    <li>Outdoor Kitchen</li>
+                    <li>Cable Tv</li>
+                    <li>Deck</li>
+                    <li>Tennis Courts</li>
+                    <li>Internet</li>
+                    <li>Parking</li>
+                    <li>Sun Room</li>
+                    <li>Concrete Flooring</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+      `
+      };
+
+      const dynamicHtml = `
+      <section class="intro-single">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12 col-lg-8">
+              <div class="title-single-box">
+                ${data.Name ?
+          `<h1 class="title-single ad-name">${data.Name ? data.Name : ''}</h1>` :
+          `<h1 class="title-single ad-name">${data.Brand ? data.Brand : ''} ${data.Model ? data.Model : ''}</h1>`
+        }
+                <span class="color-text-a ad-location">${data.Location ? data.Location : ''}</span>
+              </div>
+            </div>
+            <div class="col-md-12 col-lg-4">
+              <nav aria-label="breadcrumb" class="breadcrumb-box d-flex justify-content-lg-end">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="index.html">Home</a>
+                  </li>
+                  <li class="breadcrumb-item">
+                    <a href="property-grid.html">ADs</a>
+                  </li>
+                  <li class="breadcrumb-item active ad-name" aria-current="page">
+                  ${data.Name ? data.Name : ''}
+                  ${data.Brand ? data.Brand : ''} ${data.Model ? data.Model : ''}
+    
+                  </li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      
+      `;
+
+      $('.dynamic').html(dynamicHtml);
+    })
+
+  };
+  displaySingleAd(); 
+  }
+  
 
 
 })(jQuery);
