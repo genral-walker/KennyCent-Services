@@ -1,6 +1,6 @@
 # KennyCent Services
 
-A Fullstack web app built for a dealer and an Agent in real estate and cars.
+A Fullstack CRUD web app built for a dealer and agent in cars and real estate.
 
 Follow [This Link](https://kennycentservices.netlify.app/) to view it in the browser.
 
