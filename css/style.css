@@ -889,7 +889,7 @@ a:hover {
 
 
 .property-single img {
-  max-height: 40rem
+  max-height: 40rem;
 }
 
 /*======================================
@@ -1873,6 +1873,12 @@ footer .credits {
   .card-box-d .title-d {
     font-size: 2rem;
     margin: 1rem 0;
+  }
+}
+
+@media (min-width: 991px) {
+  .property-single img {
+    object-fit: contain;
   }
 }
 

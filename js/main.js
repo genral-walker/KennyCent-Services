@@ -99,20 +99,6 @@
   });
 
 
-  /*--/ Property owl owl /--*/
-  $('#property-single-carousel').owlCarousel({
-    loop: true,
-    margin: 0,
-    nav: true,
-    navText: ['<i class="ion-ios-arrow-back" aria-hidden="true"></i>', '<i class="ion-ios-arrow-forward" aria-hidden="true"></i>'],
-    responsive: {
-      0: {
-        items: 1,
-      }
-    }
-  });
-
-
   /*--/ Testimonials owl /--*/
   $('#testimonial-carousel').owlCarousel({
     margin: 0,
@@ -453,6 +439,17 @@
         }
       }
     },
+    carouselRuleProperty : {
+      loop: true,
+      margin: 0,
+      nav: true,
+      navText: ['<i class="ion-ios-arrow-back" aria-hidden="true"></i>', '<i class="ion-ios-arrow-forward" aria-hidden="true"></i>'],
+      responsive: {
+        0: {
+          items: 1,
+        }
+      }
+    }
   };
 
   // LOGIN CODE
@@ -516,7 +513,7 @@
     }
   });
 
-
+  // UPLOAD LOGIC
   const returnUploadType = () => {
     if ($('#upload').val() !== 'cars') {
       return firestore.collection('properties')
@@ -539,8 +536,8 @@
 
     // FILTER THE DATA TO RETURN ONLY THOSE WITH VALUES 
     const filteredData = Object.fromEntries(
-      data.filter(([key, value]) => value
-      ));
+      data.filter(([key, value]) => value)
+    );
 
     // RECORD TIME OF UPLOAD TOO
     const { serverTimestamp } = firebase.firestore.FieldValue;
@@ -715,24 +712,24 @@
   };
 
   // FOR HOMEPAGE
-  if (window.location.pathname === '/') {
+  if (window.location.pathname === '/index.html') {
     auth.onAuthStateChanged(user => {
 
       let carRef = firestore.collection('cars'),
         propertyRef = firestore.collection('properties'),
         unSubscribeCarRef,
         unSubscribePropertyRef;
-  
+
       if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
-  
+
         displayData('homepage', propertyRef, '#property-carousel', true, unSubscribePropertyRef);
         displayData('homepage', carRef, '#new-carousel', true, unSubscribeCarRef);
-  
+
       } else {
-  
+
         displayData('homepage', propertyRef, '#new-carousel');
         displayData('homepage', carRef, '#property-carousel');
-  
+
         unSubscribeCarRef && unSubscribeCarRef();
         unSubscribePropertyRef && unSubscribePropertyRef();
       }
@@ -741,38 +738,38 @@
 
   // CARS PAGE
   if (window.location.pathname === '/car-grid.html') {
-   auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
 
-    let carRef = firestore.collection('cars'),
-      unSubscribeCarRef;
+      let carRef = firestore.collection('cars'),
+        unSubscribeCarRef;
 
-    if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
-      displayData('', carRef, '#car-grid', true, unSubscribeCarRef);
+      if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
+        displayData('', carRef, '#car-grid', true, unSubscribeCarRef);
 
-    } else {
-      displayData('', carRef, '#car-grid');
-      unSubscribeCarRef && unSubscribeCarRef();
-    }
-  }); 
+      } else {
+        displayData('', carRef, '#car-grid');
+        unSubscribeCarRef && unSubscribeCarRef();
+      }
+    });
   }
 
   // PROPERTIES PAGE
   if (window.location.pathname === '/property-grid.html') {
-   auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
 
-    let propertyRef = firestore.collection('properties'),
-      unSubscribePropertyRef;
+      let propertyRef = firestore.collection('properties'),
+        unSubscribePropertyRef;
 
-    if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
-      displayData('', propertyRef, '#property-grid', true, unSubscribePropertyRef);
+      if (user && projectData.unAuthorizedAdminIsSignedIn === false) {
+        displayData('', propertyRef, '#property-grid', true, unSubscribePropertyRef);
 
-    } else {
-      displayData('', propertyRef, '#property-grid');
-      unSubscribePropertyRef && unSubscribePropertyRef();
-    }
-  }); 
+      } else {
+        displayData('', propertyRef, '#property-grid');
+        unSubscribePropertyRef && unSubscribePropertyRef();
+      }
+    });
   }
-  
+
   // SINGLE PROPERTY
   $(document).on('click', '.single-ad', function (event) {
     let docId = $(this).attr('id');
@@ -784,160 +781,115 @@
       sessionStorage.setItem('adData', JSON.stringify({ docId: docId, category: category }));
     }
   });
-  
+
   if (window.location.pathname === '/property-single.html') {
-   const displaySingleAd = () => {
-    const storageData = JSON.parse(sessionStorage.getItem('adData'));
+    const displaySingleAd = () => {
+      const storageData = JSON.parse(sessionStorage.getItem('adData'));
 
-    firestore.collection(storageData.category).doc(storageData.docId).get().then(doc => {
+      firestore.collection(storageData.category).doc(storageData.docId).get().then(doc => {
 
-      const data = doc.data();
-      const imageFolder = firebase.storage().ref(`gs:/kennycent-services.appspot.com/${data.id}`);
-      const imagesLists = [];
+        const data = doc.data();
+        const imageFolder = firebase.storage().ref(`gs:/kennycent-services.appspot.com/${doc.id}`);
+        const imagesLists = [];
+        let imagesListsLength;
 
         // RETRIEVE IMAGES FROM IMAGE REFERENCE
         imageFolder.listAll()
           .then(images => {
-            images.forEach(image =>{
-              image.getDownloadURL().then(url=>{
-                console.log(url);
-                imagesLists.push(url)
+            imagesListsLength = images.items.length;
+            images.items.forEach((image, idx) => {
+
+              image.getDownloadURL().then(url => {
+                imagesLists.push(
+                  `
+                  <div class="carousel-item-b">
+                  <img src="${url}" alt="${data.Name ? data.Name : ''} ${data.Brand ? data.Brand : ''} ${data.Model ? data.Model : ''}-image-${idx}">
+                  </div>
+                  `
+                )
               })
             })
 
+          })
+
+        const insertImages = () => {
+          let interval = setInterval(() => {
+            if (imagesLists.length === imagesListsLength) {
+              $('.owl-carousel').owlCarousel();
+              $('.owl-carousel').html(imagesLists.join(''));
+
+              let $owl = $('.owl-carousel');
+              $owl.trigger('destroy.owl.carousel');
+              $owl.html($owl.find('.owl-stage-outer').html()).removeClass('owl-loaded');
+              $owl.owlCarousel(projectData.carouselRuleProperty);
+              clearInterval(interval);
+            }
+          }, 1000);
+        };
+
+        const insertSummaryLists = () => {
+          const arr = [];
+          Object.entries(data).forEach(([key, value]) => {
+            switch (key) {
+              case 'Name':
+              case 'Brand':
+              case 'Model':
+              case 'Description':
+              case 'Price':
+              case 'Amenities':
+              case 'createdAt':
+                break;
+
+              case 'Mileage':
+                arr.push(`
+                  <li class="d-flex justify-content-between">
+                  <strong>${key}:</strong>
+                  <span>${value}km</span>
+                </li>
+                  `);
+                break;
+
+              case 'Area':
+                arr.push(`
+                  <li class="d-flex justify-content-between">
+                  <strong>Area:</strong>
+                  <span>${value}m
+                    <sup>2</sup>
+                  </span>
+                </li>
+                  `);
+                break;
+
+              default:
+                arr.push(`
+                  <li class="d-flex justify-content-between">
+                  <strong>${key}:</strong>
+                  <span>${value}</span>
+                </li>
+                  `);
+                break;
+            };
           });
 
-      adDetails =()=>{
+          return arr.length ? arr.join('') : '';
+        };
 
-        `
-      <section class="property-single nav-arrow-b">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div id="property-single-carousel" class="owl-carousel owl-arrow gallery-property">
-              <div class="carousel-item-b">
-                <img src="img/slide-2.jpg" alt="">
-              </div>
-              <div class="carousel-item-b">
-                <img src="img/slide-3.jpg" alt="">
-              </div>
-              <div class="carousel-item-b">
-                <img src="img/slide-1.jpg" alt="">
-              </div>
-            </div>
-            <div class="row justify-content-between">
-              <div class="col-md-5 col-lg-4">
-                <div class="property-price d-flex justify-content-center foo">
-                  <div class="card-header-c d-flex">
-                    <div class="card-box-ico">
-                      <span class="ion-money">₦</span>
-                    </div>
-                    <div class="card-title-c align-self-center">
-                      <h5 class="title-c ad-price">15000</h5>
-                    </div>
-                  </div>
-                </div>
-                <div class="property-summary">
-                  <div class="row">
-                    <div class="col-sm-12">
-                      <div class="title-box-d section-t4">
-                        <h3 class="title-d">Quick Summary</h3>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="summary-list">
-                    <ul class="list">
-                      <li class="d-flex justify-content-between">
-                        <strong>Location:</strong>
-                        <span>Chicago, IL 606543</span>
-                      </li>
-                      <li class="d-flex justify-content-between">
-                        <strong>Status:</strong>
-                        <span>Sale</span>
-                      </li>
-                      <li class="d-flex justify-content-between">
-                        <strong>Area:</strong>
-                        <span>340m
-                          <sup>2</sup>
-                        </span>
-                      </li>
-                      <li class="d-flex justify-content-between">
-                        <strong>Bedrooms:</strong>
-                        <span>4</span>
-                      </li>
-                      <li class="d-flex justify-content-between">
-                        <strong>Bathrooms:</strong>
-                        <span>2</span>
-                      </li>
-                      <li class="d-flex justify-content-between">
-                        <strong>Garage:</strong>
-                        <span>1</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-7 col-lg-7 section-md-t3">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <div class="title-box-d">
-                      <h3 class="title-d">Property Description</h3>
-                    </div>
-                  </div>
-                </div>
-                <div class="property-description">
-                  <p class="description color-text-a">
-                    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit
-                    neque, auctor sit amet
-                    aliquam vel, ullamcorper sit amet ligula. Cras ultricies ligula sed magna dictum porta.
-                    Curabitur aliquet quam id dui posuere blandit. Mauris blandit aliquet elit, eget tincidunt
-                    nibh pulvinar quam id dui posuere blandit.
-                  </p>
-                  <p class="description color-text-a no-margin">
-                    Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Donec rutrum congue leo eget
-                    malesuada. Quisque velit nisi,
-                    pretium ut lacinia in, elementum id enim. Donec sollicitudin molestie malesuada.
-                  </p>
-                </div>
-                <div class="row section-t3">
-                  <div class="col-sm-12">
-                    <div class="title-box-d">
-                      <h3 class="title-d">Amenities</h3>
-                    </div>
-                  </div>
-                </div>
-                <div class="amenities-list color-text-a">
-                  <ul class="list-a no-margin ad-amenities">
-                    <li>Balcony</li>
-                    <li>Outdoor Kitchen</li>
-                    <li>Cable Tv</li>
-                    <li>Deck</li>
-                    <li>Tennis Courts</li>
-                    <li>Internet</li>
-                    <li>Parking</li>
-                    <li>Sun Room</li>
-                    <li>Concrete Flooring</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-      `
-      };
+        const insertAmenities = () => {
+          if (data.Amenities && data.Amenities.length) {
+           return data.Amenities.map(value => `<li>${value}</li>`).join('')
+          }
+        };
 
-      const dynamicHtml = `
+        const dynamicHtml = `
       <section class="intro-single">
         <div class="container">
           <div class="row">
             <div class="col-md-12 col-lg-8">
               <div class="title-single-box">
                 ${data.Name ?
-          `<h1 class="title-single ad-name">${data.Name ? data.Name : ''}</h1>` :
-          `<h1 class="title-single ad-name">${data.Brand ? data.Brand : ''} ${data.Model ? data.Model : ''}</h1>`
-        }
+            `<h1 class="title-single ad-name">${data.Name ? data.Name : ''}</h1>` :
+            `<h1 class="title-single ad-name">${data.Brand ? data.Brand : ''} ${data.Model ? data.Model : ''}</h1>`
+          }
                 <span class="color-text-a ad-location">${data.Location ? data.Location : ''}</span>
               </div>
             </div>
@@ -953,7 +905,6 @@
                   <li class="breadcrumb-item active ad-name" aria-current="page">
                   ${data.Name ? data.Name : ''}
                   ${data.Brand ? data.Brand : ''} ${data.Model ? data.Model : ''}
-    
                   </li>
                 </ol>
               </nav>
@@ -962,19 +913,97 @@
         </div>
       </section>
 
-      
+      <section class="property-single nav-arrow-b">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+          <div id="property-single-carousel" class="owl-carousel owl-arrow gallery-property">
+          
+          </div>
+            <div class="row justify-content-between">
+              <div class="col-md-5 col-lg-4">
+              ${data.Price ? 
+                `<div class="property-price d-flex justify-content-center foo">
+                  <div class="card-header-c d-flex">
+                    <div class="card-box-ico">
+                      <span class="ion-money">₦</span>
+                    </div>
+                    <div class="card-title-c align-self-center">
+                      <h5 class="title-c ad-price">${data.Price}</h5>
+                    </div>
+                  </div>
+                </div>` : ''}
+                
+                <div class="property-summary">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="title-box-d section-t4">
+                        <h3 class="title-d">Quick Summary</h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="summary-list">
+                    <ul class="list">
+                      ${insertSummaryLists()}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+                <div class="col-md-7 col-lg-7 section-md-t3">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="title-box-d">
+                      <h3 class="title-d">Description</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="property-description">
+                  <p class="description color-text-a no-margin">
+                    ${data.Description ? data.Description : 'No Description.'}
+                  </p>
+                </div>
+              
+                  ${data.Amenities && data.Amenities.length ?
+                   `<div class="row section-t3">
+                   <div class="col-sm-12">
+                     <div class="title-box-d">
+                       <h3 class="title-d">Amenities</h3>
+                     </div>
+                   </div>
+                 </div>
+                 <div class="amenities-list color-text-a">
+                   <ul class="list-a no-margin ad-amenities">
+                     ${insertAmenities()}
+                   </ul>
+                 </div>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
       `;
 
-      $('.dynamic').html(dynamicHtml);
-    })
+        $('.dynamic').html(dynamicHtml);
 
-  };
-  displaySingleAd(); 
+        // INSERT IMAGES THEN RELOED OWL CAROUSEL
+        let interval = setInterval(() => {
+          if ($('.owl-carousel')) {
+            $('.owl-carousel').owlCarousel();
+            insertImages();
+            clearInterval(interval);
+          }
+        }, 1000);
+      })
+
+    };
+    displaySingleAd();
   }
-  
 
 
 })(jQuery);
+
 
 /**
  * Make all the image folder become one
