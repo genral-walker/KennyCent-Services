@@ -439,7 +439,7 @@
         }
       }
     },
-    carouselRuleProperty : {
+    carouselRuleProperty: {
       loop: true,
       margin: 0,
       nav: true,
@@ -468,6 +468,7 @@
         auth.signInWithPopup(provider).then(userSnapshot => {
           if (userSnapshot.user.uid === 'fBk79kiWvUNPBb00egMZyVlO7762' || userSnapshot.user.uid === 'flvMwThkjjUHSCOKaB7QmuCE4Wo1') {
             window.location.href = 'admin.html';
+            localStorage.setItem('thisIsAuthor', true);
           } else {
             alert('🚫 Unuathorized Admin. Please continue viewing our website as guest Instead. Thank you.');
             projectData.unAuthorizedAdminIsSignedIn = true;
@@ -487,6 +488,7 @@
     auth.signOut()
       .then(alert('Signed out.'))
       .then(() => {
+        localStorage.removeItem('thisIsAuthor');
         window.location.href = 'index.html';
       })
       .catch(err => console.log(err))
@@ -602,9 +604,11 @@
                   :
                   `<div class="col-md-4 single-ad ${category.id}" id="${doc.id}">
                   <div class="card-box-a card-shadow">`}
-                    <div class="delete-ad">
-                      <i class="fa fa-ban" aria-hidden="true"></i>
-                    </div>
+                  ${localStorage.thisIsAuthor === 'true' ?
+                  `<div class="delete-ad" data-id="${doc.id}" data-category="${category.id}">
+                    <i class="fa fa-ban" aria-hidden="true"></i>
+                  </div>`
+                  : ''}
                     <div class="img-box-a">
                       <img src="${url}" 
                       alt="${doc.data().Name ? doc.data().Name : ''} ${doc.data().Brand ? doc.data().Brand : ''} ${doc.data().Model ? doc.data().Model : ''}" 
@@ -751,7 +755,7 @@
         unSubscribeCarRef && unSubscribeCarRef();
       }
     });
-  }
+  };
 
   // PROPERTIES PAGE
   if (window.location.pathname === '/property-grid.html') {
@@ -768,7 +772,7 @@
         unSubscribePropertyRef && unSubscribePropertyRef();
       }
     });
-  }
+  };
 
   // SINGLE PROPERTY
   $(document).on('click', '.single-ad', function (event) {
@@ -777,7 +781,7 @@
 
     // SAVE TO ABOVE INFOS TO SESSION STORAGE TO USE IN SINGLE AD PAGE
     if (event.target.tagName === 'A') {
-      sessionStorage.clear();
+      sessionStorage.removeItem('adData');
       sessionStorage.setItem('adData', JSON.stringify({ docId: docId, category: category }));
     }
   });
@@ -876,7 +880,7 @@
 
         const insertAmenities = () => {
           if (data.Amenities && data.Amenities.length) {
-           return data.Amenities.map(value => `<li>${value}</li>`).join('')
+            return data.Amenities.map(value => `<li>${value}</li>`).join('')
           }
         };
 
@@ -922,8 +926,8 @@
           </div>
             <div class="row justify-content-between">
               <div class="col-md-5 col-lg-4">
-              ${data.Price ? 
-                `<div class="property-price d-flex justify-content-center foo">
+              ${data.Price ?
+            `<div class="property-price d-flex justify-content-center foo">
                   <div class="card-header-c d-flex">
                     <div class="card-box-ico">
                       <span class="ion-money">₦</span>
@@ -965,7 +969,7 @@
                 </div>
               
                   ${data.Amenities && data.Amenities.length ?
-                   `<div class="row section-t3">
+            `<div class="row section-t3">
                    <div class="col-sm-12">
                      <div class="title-box-d">
                        <h3 class="title-d">Amenities</h3>
@@ -999,7 +1003,28 @@
 
     };
     displaySingleAd();
-  }
+  };
+
+
+  // DELETING AN AD
+  $(document).on('click', '.delete-ad', function () {
+
+    let confirmed = confirm('Are you sure you want to delete this AD? You cannot recover once deleted!');
+
+    if (confirmed) {
+      firestore.collection(this.dataset.category).doc(this.dataset.id).delete()
+      .then(()=>{
+        firebase.storage().ref(`gs:/kennycent-services.appspot.com/${this.dataset.id}`).listAll()
+          .then(images => {
+            images.items.forEach(image => {image.delete()})
+          }).catch(err => console.log(err))
+      })
+      .catch(err => console.log(err))
+
+    }
+
+  });
+
 
 
 })(jQuery);
