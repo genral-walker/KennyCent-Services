@@ -732,8 +732,8 @@
 
       } else {
 
-        displayData('homepage', propertyRef, '#new-carousel');
-        displayData('homepage', carRef, '#property-carousel');
+        displayData('homepage', propertyRef, '#property-carousel');
+        displayData('homepage', carRef, '#new-carousel');
 
         unSubscribeCarRef && unSubscribeCarRef();
         unSubscribePropertyRef && unSubscribePropertyRef();
