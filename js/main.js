@@ -716,8 +716,10 @@
 
   };
 
+console.log(window.location);
+
   // FOR HOMEPAGE
-  if (window.location.pathname === '/index.html') {
+  if (window.location.pathname === '/') {
     auth.onAuthStateChanged(user => {
 
       let carRef = firestore.collection('cars'),
