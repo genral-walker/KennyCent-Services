@@ -563,7 +563,6 @@
 
           // Upload the single image 
           currentImageRef.put(file)
-          .then(file => console.log(file +' uploaded'))
         }
       })
       .then(() => {
@@ -716,10 +715,9 @@
 
   };
 
-console.log(window.location);
 
   // FOR HOMEPAGE
-  if (window.location.pathname === '/') {
+  if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
     auth.onAuthStateChanged(user => {
 
       let carRef = firestore.collection('cars'),
